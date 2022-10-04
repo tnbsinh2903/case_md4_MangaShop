@@ -1,0 +1,56 @@
+
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:fragment="modelCrate">
+  <div class="modal fade" id="modalCreateProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog container modal-xl " role="document">
+      <div class="modal-content ">
+        <div class="modal-header">
+          <h5 class="modal-title" >Create Product</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form method="post" novalidate="novalidate" id="frmCreateProduct">
+            input
+            <fieldset class="row g-3">
+              <div class="col-md-6 mb-1  text-center">
+                <label class="form-label">Name Product</label>
+                <input type="text" class="form-control" id="name" name="name">
+                <label style="margin-top: 4px" id="name-error" class="error text-danger" for="name"></label>
+              </div>
+              <div class="col-md-6 mb-1  text-center">
+                <label class="form-label ">Image</label>
+                <input type="text" class="form-control error" id="image" name="image" >
+                <label style="margin-top: 4px" id="image-error" class="error text-danger" for="image"></label>
+              </div>
+              <div class="col-md-4 mb-1  text-center">
+                <label class="form-label  ">Price</label>
+                <input type="number" class="form-control" id="price" name="price" value="" >
+                <label style="margin-top: 4px" id="price-error" class="error text-danger" for="price"></label>
+              </div>
+              <div class="col-md-4  text-center">
+                <label class="form-label ">Quantity</label>
+                <input type="number" class="form-control" id="quantity" name="quantity" value="" >
+                <label style="margin-top: 4px" id="quantity-error" class="error text-danger" for="quantity"></label>
+              </div>
+              <div class="col-md-4  text-center">
+                <label class="form-label">Category</label>
+                <select class="form-control" name="category" id="category"></select>
+              </div>
+<!--              <div class="modal-alert-danger hide"></div>-->
+            </fieldset>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" id="btnCreateProduct" class="btn btn-outline-primary  ">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            Create Product
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

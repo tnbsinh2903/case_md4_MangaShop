@@ -1,0 +1,56 @@
+
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<th:block th:fragment="modelUpdate">
+  <div class="modal fade" id="modalUpdateProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog container modal-xl " role="document">
+      <div class="modal-content ">
+        <div class="modal-header">
+          <h5 class="modal-title" >Update Product</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form method="post" novalidate="novalidate" id="frmUpdateProduct">
+            <fieldset class="row g-3">
+              <input type="hidden" id="productId">
+              <div class="col-md-6">
+                <label class="form-label">Name Product</label>
+                <input type="text" class="form-control" id="nameUp" name="nameUp" value="">
+                <label style="margin-top: 4px" id="nameUp-error" class="error text-danger" for="nameUp"></label>
+
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Image</label>
+                <input type="text" class="form-control error" id="imageUp" name="imageUp" >
+                <label style="margin-top: 4px" id="imageUp-error" class="error text-danger" for="imageUp"></label>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Price</label>
+                <input type="number" class="form-control" id="priceUp" name="priceUp" value="">
+                <label style="margin-top: 4px" id="priceUp-error" class="error text-danger" for="priceUp"></label>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="quantityUp" name="quantityUp" value="">
+                <label style="margin-top: 4px" id="quantityUp-error" class="error text-danger" for="quantityUp"></label>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select class="form-control" name="categoryUp" id="categoryUp"></select>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" id="btnUpdateProduct" class="btn btn-outline-info">
+            <i class="fa fa-edit" aria-hidden="true"></i>
+            Update Product
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

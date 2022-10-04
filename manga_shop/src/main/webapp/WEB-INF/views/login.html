@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <title>Login</title>
+    <link rel="shortcut icon" href="/assets/images/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/assets/iziToast/v1.4/iziToast.min.css">
+    <link href="/assets/css/icons.min.css" rel="stylesheet" type="text/css">
+    <link href="/assets/css/login.css" rel="stylesheet" type="text/css">
+    <link href="/assets/css/app.min.css" rel="stylesheet" type="text/css">
+
+    <style>
+        .container.right-panel-active .sign-in-container {
+            transform: translateX(100%);
+        }
+
+        .container.right-panel-active .sign-up-container {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+            animation: show 0.6s;
+        }
+
+        .container.right-panel-active .overlay-container {
+            transform: translateX(-100%);
+        }
+
+        .container.right-panel-active .overlay {
+            transform: translateX(50%);
+        }
+
+
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+        .container.right-panel-active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .container.right-panel-active .overlay-right {
+            transform: translateX(20%);
+        }
+    </style>
+</head>
+
+<body>
+<div class="container" id="container">
+    <div class="form-container sign-up-container ">
+        <form>
+            <div>
+                <h1 class="mb-4 font-italic"><span
+                        style="font-size: 2.1rem; color: rgb(67, 231, 127); ">Create</span>
+                    <span style="font-size: 2.1rem; color: rgb(108, 201, 15);">Account</span>
+                </h1>
+            </div>
+
+            <div>
+                <div>
+                    <input type="text" id="fullName" name="fullName" placeholder="Full Name"/>
+                </div>
+                <div>
+                    <input type="email" id="email" name="email" placeholder="Email"/>
+                </div>
+                <div>
+                    <input type="password" id="password" name="password" placeholder="Password"/>
+                </div>
+                <div>
+                    <input type="number" id="phone" name="phone" placeholder="Phone"/>
+                </div>
+                <div>
+                    <input type="text" id="address" name="address" placeholder="Address"/>
+                </div>
+            </div>
+            <div class="mt-2">
+                <!--                <button id="">Sign Up</button>-->
+                <input type="button" id="btnSignUp" value="Sign In"/>
+
+            </div>
+        </form>
+    </div>
+    <div class="form-container sign-in-container">
+        <form>
+            <h1 style="  color: rgb(167, 21, 157)">Sign in</h1>
+            <div class="social-container">
+                <a href="#" class="social bg-primary"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social bg-success"><i class="fab fa-google-plus-g"></i></a>
+                <a href="#" class="social bg-secondary"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <span>or use your account</span>
+            <div>
+                <input id="emailLogin" name="emailLogin" type="email" placeholder="Email"/>
+            </div>
+            <div>
+                <input id="passwordLogin" name="passwordLogin" type="password" placeholder="Password"/>
+            </div>
+            <div>
+                <a href="#">Forgot your password?</a>
+            </div>
+            <div class="mt-3">
+                <input type="button" id="btnSignIn" value="Sign In"/>
+            </div>
+        </form>
+    </div>
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p>To keep connected with us please login with your personal info</p>
+                <button class="ghost" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Hello, Friend!</h1>
+                <p>Enter your personal details and start journey with us</p>
+                <button class="ghost" id="signUp">Sign Up</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<th:block th:replace="/script/script :: script"></th:block>
+
+<script src="/assets/js/app.js"></script>
+
+
+<script>
+    const signUpButton = document.getElementById('signUp');
+    const signInButton = document.getElementById('signIn');
+    const container = document.getElementById('container');
+
+    signUpButton.addEventListener('click', () => {
+        container.classList.add("right-panel-active");
+    });
+
+    signInButton.addEventListener('click', () => {
+        container.classList.remove("right-panel-active");
+    });
+
+
+    let user = new User();
+    let role = new Role();
+
+    let btnSignIn = $("#btnSignIn");
+    btnSignIn.on('click', () => {
+         user.username = $("#emailLogin").val();
+        user.password = $("#passwordLogin").val();
+
+        user.role = role;
+        console.log(role)
+        console.log(user)
+
+        // let user = {
+        //     username: username,
+        //     password: password
+        // }
+
+        $.ajax({
+            headers: {
+                'accept': 'application/json',
+                'content-type': 'application/json'
+            },
+            type: 'POST',
+            url: "http://localhost:8080/api/auth/login",
+            data: JSON.stringify(user)
+        }).done(() => {
+            App.IziToast.showSuccessAlert("LogIn Successfully !");
+            console.log(user.role.id)
+
+            // if (user.role.id === 1){
+                window.location.href = "/users";
+            // }else {
+            //     window.location.href = "/products";
+            // }
+        }).fail((jqXHR) => {
+            App.showErrorAlert("Email or Password Incorrect !")
+        })
+
+    })
+
+
+    $('#btnSignUp').on('click', () => {
+
+        let fullName = $('#fullName').val();
+        let username = $('#email').val();
+        let password = $('#password').val();
+        let phone = $('#phone').val();
+        let address = $("#address").val();
+        let roleId = 2;
+
+        let user = {
+            fullName: fullName,
+            username: username,
+            password: password,
+            phone: phone,
+            address: address,
+            role: {
+                id: roleId,
+            }
+        }
+
+        $.ajax({
+            headers: {
+                "accept": "application/json",
+                "content-type": "application/json"
+            },
+            type: "POST",
+            url: "http://localhost:8080/api/auth/register",
+            data: JSON.stringify(user)
+        }).done(() => {
+            setTimeout(() => {
+                App.showSuccessAlert('LogUp Successfully !');
+                window.location.href = "/login";
+            },1500)
+        }).fail((jqXHR) => {
+            console.log(jqXHR);
+            if (jqXHR.responseJSON){
+                if (jqXHR.responseJSON.message){
+                    App.IziToast.showErrorAlert(jqXHR.responseJSON.message)
+                }else {
+                    $.each(jqXHR.responseJSON, (key, item) => {
+                        App.showErrorAlert(item);
+                     })
+                }
+            }else {
+                $.notify("Error !")
+            }
+
+        })
+    })
+
+    function getAllRole(){
+        $.ajax({
+            headers:{
+                'accept' : "application/json",
+                'content' : "application/json"
+            },
+            type :"GET",
+            url : "http://localhost:8080/api/users/role",
+        }).done((data)=>{
+            role = data
+
+        }).fail((jqXHR)=>{
+            console.log(jqXHR)
+        })
+    }
+    getAllRole();
+
+</script>
+
+
+</html>

@@ -50,7 +50,7 @@
 <body>
 <div class="container" id="container">
     <div class="form-container sign-up-container ">
-        <form>
+        <form  id="frmCreate">
             <div>
                 <h1 class="mb-4 font-italic"><span
                         style="font-size: 2.1rem; color: rgb(67, 231, 127); ">Create</span>
@@ -82,8 +82,8 @@
             </div>
         </form>
     </div>
-    <div class="form-container sign-in-container">
-        <form>
+    <div id="login" class="form-container sign-in-container">
+        <form id="frmLogin">
             <h1 style="  color: rgb(167, 21, 157)">Sign in</h1>
             <div class="social-container">
                 <a href="#" class="social bg-primary"><i class="fab fa-facebook"></i></a>
@@ -145,19 +145,25 @@
     let user = new User();
     let role = new Role();
 
+    function getUserById(userId) {
+        return $.ajax({
+            headers: {
+                'accept': "application/json",
+                'content-type': "application/json"
+            },
+            type: 'GET',
+            url: "http://localhost:8080/api/users/" + userId,
+        }).done((data) => {
+            user = data;
+        }).fail((jqXHR) => {
+            console.log(jqXHR)
+        })
+    }
+
     let btnSignIn = $("#btnSignIn");
     btnSignIn.on('click', () => {
-         user.username = $("#emailLogin").val();
+        user.username = $("#emailLogin").val();
         user.password = $("#passwordLogin").val();
-
-        user.role = role;
-        console.log(role)
-        console.log(user)
-
-        // let user = {
-        //     username: username,
-        //     password: password
-        // }
 
         $.ajax({
             headers: {
@@ -167,21 +173,40 @@
             type: 'POST',
             url: "http://localhost:8080/api/auth/login",
             data: JSON.stringify(user)
-        }).done(() => {
-            App.IziToast.showSuccessAlert("LogIn Successfully !");
-            console.log(user.role.id)
+        }).done((data) => {
 
-            // if (user.role.id === 1){
-                window.location.href = "/users";
-            // }else {
-            //     window.location.href = "/products";
-            // }
+            console.log(data.id)
+            getUserById(data.id).then((result) => {
+                console.log(result.deleted)
+
+                if (result.deleted){
+                    App.showErrorAlert("Account You Block ! Contact Admin Now ☏ ")
+                }else {
+                    console.log(result.role.code)
+                    if (result.role.code === "USER") {
+                        setTimeout(function () {
+                            window.location.href = "/products";
+                        }, 1000);
+                        return;
+                    }
+                    setTimeout(function () {
+                        window.location.href = "/users";
+                    }, 1000);
+
+                }
+            });
+            App.IziToast.showSuccessAlert("LogIn Successfully !");
+
+
         }).fail((jqXHR) => {
             App.showErrorAlert("Email or Password Incorrect !")
         })
 
     })
-
+    $("#signUp").on("hidden.bs.modal", function () {
+        $("#signUp").empty();
+        $("#frmCreate")[0].reset();
+     });
 
     $('#btnSignUp').on('click', () => {
 
@@ -215,39 +240,40 @@
             setTimeout(() => {
                 App.showSuccessAlert('LogUp Successfully !');
                 window.location.href = "/login";
-            },1500)
+            }, 1500)
         }).fail((jqXHR) => {
             console.log(jqXHR);
-            if (jqXHR.responseJSON){
-                if (jqXHR.responseJSON.message){
+            if (jqXHR.responseJSON) {
+                if (jqXHR.responseJSON.message) {
                     App.IziToast.showErrorAlert(jqXHR.responseJSON.message)
-                }else {
+                } else {
                     $.each(jqXHR.responseJSON, (key, item) => {
-                        App.showErrorAlert(item);
-                     })
+                        App.IziToast.showErrorAlert(item);
+                    })
                 }
-            }else {
+            } else {
                 $.notify("Error !")
             }
 
         })
     })
 
-    function getAllRole(){
+    function getAllRole() {
         $.ajax({
-            headers:{
-                'accept' : "application/json",
-                'content' : "application/json"
+            headers: {
+                'accept': "application/json",
+                'content': "application/json"
             },
-            type :"GET",
-            url : "http://localhost:8080/api/users/role",
-        }).done((data)=>{
+            type: "GET",
+            url: "http://localhost:8080/api/users/role",
+        }).done((data) => {
             role = data
 
-        }).fail((jqXHR)=>{
+        }).fail((jqXHR) => {
             console.log(jqXHR)
         })
     }
+
     getAllRole();
 
 </script>

@@ -56,6 +56,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public Optional<UserDTO> findUserDTOByPhone(String phone) {
+        return userRepository.findUserDTOByPhone(phone);
+    }
+
+    @Override
     public User save(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
@@ -89,5 +94,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     public Optional<UserDTO> findUserDTOById(Long id) {
         return userRepository.findUserDTOById(id);
+    }
+
+    @Override
+    public Optional<UserDTO> findUserDTOByUserName(String username) {
+        return userRepository.findUserDTOByUserName(username);
     }
 }

@@ -57,6 +57,8 @@ public class ProductControllerRest {
         return new ResponseEntity<>(productDTO, HttpStatus.OK);
     }
 
+
+
     @PostMapping("/create")
     public ResponseEntity<?> createProduct (@Validated @RequestBody ProductDTO productDTO, BindingResult bindingResult){
 
@@ -64,6 +66,12 @@ public class ProductControllerRest {
 
         if (bindingResult.hasErrors()) {
             return appUtils.errors(bindingResult);
+        }
+
+        Optional<ProductDTO> productDTOOptional = productService.findProductById(productDTO.getId());
+
+        if (!productDTOOptional.isPresent()) {
+            return new ResponseEntity<>("id này ko tồn tại !", HttpStatus.NOT_FOUND);
         }
          try {
             Product product = productDTO.toProduct();

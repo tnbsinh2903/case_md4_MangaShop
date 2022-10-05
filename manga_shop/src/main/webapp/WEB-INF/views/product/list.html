@@ -33,15 +33,15 @@
     <div class="navbar-custom">
         <ul class="list-unstyled topnav-menu float-right mb-0">
 
-            <li class="d-none d-sm-block">
+            <li  class="d-none d-sm-block">
                 <form class="app-search">
                     <div class="app-search-box">
                         <div class="input-group">
 
-                            <input type="text" class="form-control" placeholder="Search...">
+                            <input th:autocomplete="off" id="inputSearch" type="text" class="form-control" placeholder="Search...">
 
-                            <div class="input-group-append">
-                                <button class="btn" type="submit">
+                            <div id="btnSearch" class="input-group-append">
+                                <button class="btn" type="button">
                                     <i class="fe-search"></i>
                                 </button>
                             </div>
@@ -53,12 +53,16 @@
             <!-- infor -->
 
             <li class="dropdown notification-list">
-                <a class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light" data-toggle="dropdown"
+                <a th:object="${username}" class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light"
+                   data-toggle="dropdown"
                    href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                    <img src="/assets/images/users/avatar-1.jpg" alt="user-image" class="rounded-circle">
-                    <span class="pro-user-name ml-1">
-                            Nik Patel <i class="mdi mdi-chevron-down"></i>
-                        </span>
+                    <input id="get-username" type="hidden" th:value="${username}">
+                    <span style="border: #002979 solid;border-radius: 20px;padding: 8px;" class="pro-user-name mr-2"
+                          th:text="${username}">
+                         <i class="mdi mdi-chevron-down"></i>
+                    </span>
+                    <img style="height: 45px;width: 45px;" src="/assets/images/users/avatar-2.jpg" alt="user-image"
+                         class="rounded-circle">
                 </a>
                 <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
                     <!-- item-->
@@ -76,7 +80,7 @@
                     <div class="dropdown-divider"></div>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                    <a href="/logout" class="dropdown-item notify-item">
                         <i class="remixicon-logout-box-line"></i>
                         <span>Logout</span>
                     </a>
@@ -104,7 +108,7 @@
     <!-- end Topbar -->
 
     <!-- ========== Left Sidebar Start ========== -->
-    <div class="left-side-menu bg-dark">
+    <div id="left-side" class="left-side-menu bg-dark">
 
         <div class="slimscroll-menu">
 
@@ -160,7 +164,7 @@
     <!-- Start Page Content here -->
     <!-- ============================================================== -->
 
-    <div class="content-page">
+    <div id="content" class="content-page">
         <div class="content">
 
             <!-- Start Content-->
@@ -170,7 +174,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class=" page-title-box bg-success">
-                            <div class="page-title-right">
+                            <div id="add-user" class="page-title-right">
                                 <a type="button" class=" float-right  btn btn-outline-secondary btn-light create"
                                    data-toggle="modal" data-target="#modalCreateProduct">
                                     <i class="fas fa-plus-square" aria-hidden="true">
@@ -178,7 +182,7 @@
                                     <span>Add New Product</span>
                                 </a>
                             </div>
-                            <div class="page-title-right mr-3">
+                            <div id="cart" class="page-title-right mr-3">
                                 <a class="btn btn-bordered-primary" href=""><i class="fas fa-shopping-cart"></i></a>
                             </div>
                             <h4 class="page-title">Welcome !</h4>
@@ -260,50 +264,116 @@
 <th:block th:replace="/product/modalUpdate :: modelUpdate"></th:block>
 
 <th:block th:replace="/script/script :: script"></th:block>
+
 <script src="/assets/js/app.js"></script>
 
 <script>
 
     let product = new Product();
     let category = new Category();
+    let user = new User();
+    let role = new Role();
 
 
-    function renderProduct(objPro) {
+    function renderProduct(objPro, objUser) {
+        // console.log(objUser);
+
         let str = `
                         <tr class="text-center" id="tr_${objPro.id}">
                             <td>${objPro.id}</td>
                             <td>${objPro.name}</td>
                             <td><img style="height: 50px" src="${objPro.image}" alt="a"/> </td>
-                            <td>${new Intl.NumberFormat('vi-VN', {
+                            <td>
+                              ${new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND'
-        }).format(objPro.price)}</td>
+        }).format(objPro.price)}
+                            </td>
                             <td>${objPro.quantity}</td>
                             <td>${objPro.category.name}</td>
-                             <th class="text-center">
-                               <a class="btn btn-outline-secondary edit" data-id="${objPro.id}" title="Edit" data-toggle="tooltip" data-toggle="modal"
-                                 data-target="#modalUpdateProduct" >
-                                  <i class="fas fa-edit" aria-hidden="true"></i>
-                               </a>
-                            </th>
-                            <th class="text-center">
-                                <a class="btn btn-outline-success delete"  data-id="${objPro.id}" title="Delete" data-toggle="tooltip" data-toggle="modal" >
-                                  <i class="fas fa-ban" aria-hidden="true"></i>
-                                </a>
-                            </th>
-                            <th class="text-center">
-                                <a class="btn btn-outline-primary add-cart"  data-id="${objPro.id}" title="Add Cart" data-toggle="tooltip" data-toggle="modal" >
-                                  <i class="fas fa-cart-plus" aria-hidden="true"></i>
-                                </a>
-                            </th>
-                        </tr>
+
+                            ${showAction(objUser.role.code, objPro)}
+
+                         </tr>
 
                         `;
+
         return str;
+
         // $("#tbListCustomers tbody").prepend(str);
     }
 
-    function loadProduct(product) {
+    // ${showAction(objUser.role.code, objPro)}
+
+    function getAllUser() {
+        return $.ajax({
+            headers: {
+                'accept': "application/json",
+                'content-type': "application/json"
+            },
+            type: 'GET',
+            url: "http://localhost:8080/api/users",
+        }).done((data) => {
+            user = data
+            // console.log(user)
+        }).fail((jqXHR) => {
+            console.log(jqXHR)
+        })
+    }
+
+    getAllUser();
+
+    function getAllRole() {
+        $.ajax({
+            headers: {
+                'accept': "application/json",
+                'content': "application/json"
+            },
+            type: "GET",
+            url: "http://localhost:8080/api/users/role",
+        }).done((data) => {
+            role = data
+            // console.log(role)
+
+        }).fail((jqXHR) => {
+            console.log(jqXHR)
+        })
+    }
+
+    getAllRole();
+
+    function showAction(action, objPro) {
+        if (action === "ADMIN") {
+             return `
+        <th class="text-center">
+            <a class="btn btn-outline-secondary edit" data-id="${objPro.id}" title="Edit" data-toggle="tooltip"
+               data-toggle="modal"
+               data-target="#modalUpdateProduct">
+                <i class="fas fa-edit" aria-hidden="true"></i>
+            </a>
+        </th>
+        <th class="text-center">
+            <a class="btn btn-outline-success delete" data-id="${objPro.id}" title="Delete" data-toggle="tooltip"
+               data-toggle="modal">
+                <i class="fas fa-ban" aria-hidden="true"></i>
+            </a>
+        </th>  `;
+
+        } else {
+            return `
+        <th class="text-center">
+           <a class="btn btn-outline-primary add-cart"  data-id="${objPro.id}" title="Add Cart" data-toggle="tooltip" data-toggle="modal" >
+              <i class="fas fa-cart-plus" aria-hidden="true"></i>
+           </a>
+        </th>
+        `;
+        }
+    }
+
+    let username = $('#get-username').val();
+
+    function loadProduct(product, user) {
+
         $.ajax({
             headers: {
                 'accept': "application/json",
@@ -311,32 +381,41 @@
             },
             type: 'GET',
             url: "http://localhost:8080/api/products",
-            data: JSON.stringify(product)
-        })
-            .done((data) => {
-                data.forEach(item => {
-                    product = item;
-                    // locationRegion = customer.locationRegion
-                    let str = renderProduct(product);
-                    $("#tbListProduct tbody").prepend(str);
-                });
+            // data: JSON.stringify(product)
+        }).done((resp) => {
+            getUserByUsername(username).then((data) => {
 
-                App.formatTooltip();
-                removeHandleShowModal();
-                loadModel();
-                // showCreateModal();
-                showUpdateProduct();
-                // showDepositModal();
-                // showWithdrawModal();
-                // showTransferModal();
-                // showSuspendedModal();
+                resp.forEach(item => {
+                    product = item;
+                     let str = renderProduct(product, data);
+                    $("#tbListProduct tbody").prepend(str);
+                    App.formatTooltip();
+                    removeHandleShowModal();
+                    loadModel();
+                    showUpdateProduct();
+                });
             })
-            .fail((jqXHR) => {
-                console.log(jqXHR);
-            })
+        }).fail((jqXHR) => {
+            console.log(jqXHR);
+        });
     }
 
-    loadProduct()
+    loadProduct();
+
+    function getUserByUsername(name) {
+        return $.ajax({
+            headers: {
+                'accept': "application/json",
+                'content-type': "application/json"
+            },
+            type: 'GET',
+            url: "http://localhost:8080/api/users/get/" + name,
+        }).done((data) => {
+            user = data
+        }).fail((jqXHR) => {
+            console.log(jqXHR)
+        })
+    }
 
     function getProductById(productId) {
         return $.ajax({
@@ -352,6 +431,21 @@
             console.log(jqXHR)
         })
     }
+
+    // function getRoleById(roleId) {
+    //     return $.ajax({
+    //         headers: {
+    //             'accept': "application/json",
+    //             'content-type': "application/json"
+    //         },
+    //         type: 'GET',
+    //         url: "http://localhost:8080/api/users/role/" + roleId,
+    //     }).done((data) => {
+    //         role = data
+    //     }).fail((jqXHR) => {
+    //         console.log(jqXHR)
+    //     })
+    // }
 
     function getAllCategories() {
         return $.ajax({
@@ -385,89 +479,60 @@
         $("#modalCreateProduct").modal('show')
     });
 
- function doCreate() {
-     // $("#btnCreateProduct").on("click", function () {
-         category.id = $('#category').val();
-         category.name = $('#category option:selected').text();
+    function doCreate() {
+        // $("#btnCreateProduct").on("click", function () {
+        category.id = $('#category').val();
+        category.name = $('#category option:selected').text();
 
-         delete product.id;
-         product.name = $("#name").val();
-         product.image = $("#image").val();
-         product.price = $("#price").val();
-         product.quantity = $("#quantity").val();
-         product.category = category;
-         console.log(product)
+        delete product.id;
+        product.name = $("#name").val();
+        product.image = $("#image").val();
+        product.price = $("#price").val();
+        product.quantity = $("#quantity").val();
+        product.category = category;
+        // console.log(product)
 
-         $.ajax({
-             type: "POST",
-             headers: {
-                 'Accept': 'application/json',
-                 'Content-Type': 'application/json'
-             },
-             url: "http://localhost:8080/api/products/create",
-             data: JSON.stringify(product)
-         }).done((data) => {
+        $.ajax({
+            type: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: "http://localhost:8080/api/products/create",
+            data: JSON.stringify(product)
+        }).done((resp) => {
+            $.ajax({
+                headers: {
+                    'accept': "application/json",
+                    'content-type': "application/json"
+                },
+                type: 'GET',
+                url: "http://localhost:8080/api/users/get/" + username,
+            }).done((data) => {
+                user = data;
+                let str = renderProduct(resp, data);
+                $("#tbListProduct tbody").prepend(str);
 
-             let str = renderProduct(data);
+                App.IziToast.showSuccessAlert("Create Product Successful !");
+                App.formatTooltip();
+                loadModel();
 
-             // $("#tbListProduct tbody").prepend(str);
-             // let str = `
-             //         <tr class="text-center" id="tr_${data.id}">
-             //             <td>${data.id}</td>
-             //             <td>${data.name}</td>
-             //             <td><img style="height: 50px" src="${data.image}" alt="a"/> </td>
-             //             <td>${new Intl.NumberFormat('vi-VN', {
-             //     style: 'currency',
-             //     currency: 'VND'
-             // }).format(data.price)}</td>
-             //             <td>${data.quantity}</td>
-             //             <td>${data.category.name}</td>
-             //              <th class="text-center">
-             //                <a class="btn btn-outline-secondary edit" data-id="${data.id}" title="Edit" data-toggle="tooltip" data-toggle="modal"
-             //                  data-target="#modalUpdateProduct" >
-             //                   <i class="fas fa-edit" aria-hidden="true"></i>
-             //                </a>
-             //             </th>
-             //             <th class="text-center">
-             //                 <a class="btn btn-outline-success delete"  data-id="${data.id}" title="Delete" data-toggle="tooltip" data-toggle="modal" >
-             //                   <i class="fas fa-ban" aria-hidden="true"></i>
-             //                 </a>
-             //             </th>
-             //             <th class="text-center">
-             //                 <a class="btn btn-outline-primary add-cart"  data-id="${data.id}" title="Add Cart" data-toggle="tooltip" data-toggle="modal" >
-             //                   <i class="fas fa-cart-plus" aria-hidden="true"></i>
-             //                 </a>
-             //             </th>
-             //         </tr>
-             //
-             //         `;
-             $("#tbListProduct tbody").prepend(str);
+                $('#modalCreateProduct').modal('hide');
 
-             App.IziToast.showSuccessAlert("Create Product Successful !");
-             App.formatTooltip();
-             loadModel();
+            }).fail((jqXHR) => {
+                // let str = "";
+                if (jqXHR.responseJSON) {
+                    $.each(jqXHR.responseJSON, function (key, item) {
 
-             $('#modalCreateProduct').modal('hide');
-
-         }).fail((jqXHR) => {
-             // let str = "";
-             if (jqXHR.responseJSON) {
-                 $.each(jqXHR.responseJSON, function (key, item) {
-                     //         str += `<ul>
-                     //         <li>
-                     //    <label id="${key}-error" class="error" for="${key}">${item}</label>
-                     //     </li>
-                     //      </ul>`;
-                     //         $("#" + key).addClass("error");
-                     App.showErrorAlert(item)
-                 });
-             }
-             // $("#modalCreateProduct .modal-alert-danger").empty().removeClass("hide").addClass("show").append(str);
-             console.log(jqXHR)
-         });
-
-     // });
- }
+                        App.showErrorAlert(item)
+                    });
+                }
+                console.log(jqXHR)
+            });
+        }).fail((jqXHR) => {
+            console.log(jqXHR)
+        });
+    }
 
     // $("#modalCreateProduct").on("hidden.bs.modal", function () {
     //     $('#frmCreateProduct')[0].reset();
@@ -545,7 +610,7 @@
                 $("#modalCreateProduct .modal-alert-danger").removeClass("show").addClass("hide").empty();
                 $("#frmCreateProduct input.error").removeClass("error");
             }
-             this.defaultShowErrors();
+            this.defaultShowErrors();
         },
         submitHandler: function () {
             doCreate();
@@ -557,7 +622,7 @@
             let productId = $(this).data("id");
 
             getProductById(productId).then(() => {
-                console.log(category)
+                // console.log(category)
                 $("#productId").val(productId);
                 $("#nameUp").val(product.name);
                 $("#imageUp").val(product.image);
@@ -567,49 +632,64 @@
 
 
                 $("#modalUpdateProduct").modal('show');
-            // }).catch(() => {
-            //     alert("error")
+                // }).catch(() => {
+                //     alert("error")
             })
         })
     }
 
- function doUpdate() {
-     // $("#btnUpdateProduct").on('click', function () {
+    function doUpdate() {
+        // $("#btnUpdateProduct").on('click', function () {
 
-         category.id = $('#categoryUp').val();
-         category.name = $('#categoryUp option:selected').text();
+        category.id = $('#categoryUp').val();
+        category.name = $('#categoryUp option:selected').text();
 
-         product.name = $("#nameUp").val();
-         product.image = $("#imageUp").val();
-         product.price = $("#priceUp").val();
-         product.quantity = $("#quantityUp").val();
-         product.category = category;
+        product.name = $("#nameUp").val();
+        product.image = $("#imageUp").val();
+        product.price = $("#priceUp").val();
+        product.quantity = $("#quantityUp").val();
+        product.category = category;
 
-         $.ajax({
-             headers: {
-                 'accept': "application/json",
-                 'content-type': "application/json"
-             },
-             type: 'PUT',
-             url: "http://localhost:8080/api/products/update",
-             data: JSON.stringify(product)
-         }).done((date) => {
-             product = date;
+        $.ajax({
+            headers: {
+                'accept': "application/json",
+                'content-type': "application/json"
+            },
+            type: 'PUT',
+            url: "http://localhost:8080/api/products/update",
+            data: JSON.stringify(product)
+        }).done((resp) => {
+            $.ajax({
+                headers: {
+                    'accept': "application/json",
+                    'content-type': "application/json"
+                },
+                type: 'GET',
+                url: "http://localhost:8080/api/users/get/" + username,
+            }).done((data) => {
+                user = data;
+                let str = renderProduct(resp, user);
+                $("#tr_" + product.id).replaceWith(str);
 
-             let str = renderProduct(product);
-             $("#tr_" + product.id).replaceWith(str);
+                removeHandleShowModal();
+                loadModel();
+                App.IziToast.showSuccessAlert("Data update successful !");
 
-             removeHandleShowModal();
-             loadModel();
-             App.IziToast.showSuccessAlert("Data update successful !");
+                $("#modalUpdateProduct").modal('hide');
 
-             $("#modalUpdateProduct").modal('hide');
+            }).fail((jqXHR) => {
+                if (jqXHR.responseJSON) {
+                    $.each(jqXHR.responseJSON, function (key, item) {
 
-         }).fail((jqXHR) => {
-             console.log(jqXHR)
-         })
-     // })
- }
+                        App.showErrorAlert(item)
+                    });
+                }
+            })
+        }).fail((jqXHR) => {
+            console.log(jqXHR)
+        })
+
+    }
 
     $("#modalUpdateProduct").on("hidden.bs.modal", function () {
         $("#modalUpdateProduct .modal-alert-danger").empty();
@@ -699,7 +779,7 @@
     function showSuspendedModal() {
 
         let productId = product.id;
-        console.log(productId);
+        // console.log(productId);
         App.showSuspendedConfirmDialog()
             .then((result) => {
                 if (result.isConfirmed) {
@@ -740,12 +820,72 @@
         })
     }
 
+    function showAddProduct() {
+        getUserByUsername(username).then((rest) =>{
+            console.log(rest.role.code)
+            if (rest.role.code === "USER") {
+                $('#add-user').hide();
+                $('#left-side').hide();
+                $('#cart').show();
+                $('#content').css("margin-left","0");
+                $('.footer').hide();
+                $('.d-none').show();
+            } else {
+                $('#add-user').show();
+                $('#left-side').show();
+                $('#cart').hide();
+                $('.d-none').hide();
+
+            }
+        })
+
+
+    }
+
+    function doSearchProduct() {
+        $('#btnSearch').on('click', function () {
+            let query = $('#inputSearch').val();
+            $('#tbListProduct tbody').html("")
+            if (query === "") {
+                loadProduct();
+                return
+            }
+
+            $.ajax({
+                headers: {
+                    "Accept" : "application/json",
+                    "Content-Type" : "application/json"
+                },
+                type: "POST",
+                url: "http://localhost:8080/api/products/search/" + query
+            })
+                .done((data) => {
+                    $('#tbListProduct tbody').html("");
+
+                    getUserByUsername(username).then((result)=>{
+                        $.each(data, (i, item) => {
+                            product = item;
+                            let str = renderProduct(product, result);
+                                $('#tbListProduct tbody').prepend(str);
+
+                        })
+                    })
+
+                }).fail((jqXHR)=>{
+                    App.showErrorAlert("lỗi")
+            })
+        })
+    }
+
+    doSearchProduct();
+
     function removeHandleShowModal() {
         $(".edit").off("click");
         $(".delete").off("click");
     }
 
     function loadModel() {
+        showAddProduct();
         showUpdateProduct();
         // doCreate();
         // showSuspendedModal();

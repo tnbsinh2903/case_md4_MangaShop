@@ -63,8 +63,19 @@ class App {
         iziToast.warning({
             icon: 'warning',
             position: 'topRight',
-            backgroundColor : "green",
+            backgroundColor : "red",
              timeout: 2200,
+            // title: 'Warning',
+            message: t,
+        })
+    }
+
+    static showErrorSearch(t) {
+        iziToast.error({
+            icon: 'error',
+            position: 'center',
+            backgroundColor : "green",
+            timeout: 2000,
             // title: 'Warning',
             message: t,
         })

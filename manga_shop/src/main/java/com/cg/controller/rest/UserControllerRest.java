@@ -37,7 +37,32 @@ public class UserControllerRest {
     @GetMapping("/role")
     public ResponseEntity<?> getAllRole() {
         List<RoleDTO> roleDTOList = roleService.getAllRoleDTO();
+
         return new ResponseEntity<>(roleDTOList, HttpStatus.OK);
+    }
+
+    @GetMapping("/role/{id}")
+    public ResponseEntity<?> getRoleDTOById(@PathVariable Long id ){
+
+        Optional<RoleDTO> userOptional = roleService.findRoleDTOById(id);
+
+        return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAllUserDTOById(@PathVariable Long id ){
+
+        Optional<UserDTO> userOptional = userService.findUserDTOById(id);
+
+        return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+    }
+
+    @GetMapping("/get/{username}")
+    public ResponseEntity<?> getAllUserDTOByUsername(@PathVariable String username ){
+
+        Optional<UserDTO> userOptional = userService.findUserDTOByUserName(username);
+
+        return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
     }
 
     @DeleteMapping("/block/{id}")

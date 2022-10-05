@@ -28,30 +28,16 @@
     <div class="navbar-custom">
         <ul class="list-unstyled topnav-menu float-right mb-0">
 
-            <li class="d-none d-sm-block">
-                <form class="app-search">
-                    <div class="app-search-box">
-                        <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Search...">
-                            <div class="input-group-append">
-                                <button class="btn" type="submit">
-                                    <i class="fe-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </li>
-
             <!-- infor -->
 
             <li class="dropdown notification-list">
-                <a class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light" data-toggle="dropdown"
+                <a th:object="${user}" class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light"
+                   data-toggle="dropdown"
                    href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                    <img src="/assets/images/users/avatar-1.jpg" alt="user-image" class="rounded-circle">
-                    <span class="pro-user-name ml-1">
-                            Nik Patel <i class="mdi mdi-chevron-down"></i>
-                        </span>
+                    <span class="pro-user-name mr-2" th:text="${user}">
+                         <i class="mdi mdi-chevron-down"></i>
+                    </span>
+                    <img src="/assets/images/users/avatar-2.jpg" alt="user-image" class="rounded-circle">
                 </a>
                 <div class="dropdown-menu dropdown-menu-right profile-dropdown ">
                     <!-- item-->
@@ -60,7 +46,7 @@
                     </div>
 
                     <!-- item-->
-                    <a  href="javascript:void(0);" class="dropdown-item notify-item">
+                    <a href="javascript:void(0);" class="dropdown-item notify-item">
                         <i class="remixicon-account-circle-line"></i>
                         <span>My Account</span>
                     </a>
@@ -69,7 +55,7 @@
                     <div class="dropdown-divider"></div>
 
                     <!-- item-->
-                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                    <a href="/logout" class="dropdown-item notify-item">
                         <i class="remixicon-logout-box-line"></i>
                         <span>Logout</span>
                     </a>
@@ -260,7 +246,7 @@
 
     function renderUser(objUser) {
         // delete user.id ;
-        console.log(objUser)
+        console.log(objUser.deleted)
         let str = `
                         <tr class="text-center" id="tr_${objUser.id}">
                             <td>${objUser.id}</td>
@@ -270,22 +256,21 @@
                             <td>${objUser.phone}</td>
                             <td>${objUser.address}</td>
                             <td>${objUser.role.code}</td>
-                            <th class="text-center">
-                                <a class="btn btn-outline-success block"  data-id="${objUser.id}" title="Block" data-toggle="tooltip" data-toggle="modal" >
-                                       ${showLock(objUser.deleted)}
-<!--                                  <i class="fas fa-unlock" aria-hidden="true"></i>-->
-                                </a>
-                            </th>
+
+                            ${showlock(objUser,objUser.deleted)}
+
 
                         </tr>
 
                         `;
+        // ${showLock(objUser.deleted)}
         return str;
-     }
+    }
 
     function loadUser(user) {
 
         $.ajax({
+
             headers: {
                 'accept': "application/json",
                 'Content-Type': "application/json",
@@ -297,7 +282,7 @@
             .done((data) => {
                 data.forEach(item => {
                     user = item;
-                     let str = renderUser(user);
+                    let str = renderUser(user);
                     $("#tbListUser tbody").prepend(str);
                 });
 
@@ -310,24 +295,55 @@
                 console.log(jqXHR);
             })
     }
-loadUser();
 
-    function getAllRole(){
+    loadUser();
+
+    function getAllRole() {
         $.ajax({
-            headers:{
-                'accept' : "application/json",
-                'content' : "application/json"
+            headers: {
+                'accept': "application/json",
+                'content': "application/json"
             },
-            type :"GET",
-            url : "http://localhost:8080/api/users/role",
-         }).done((data)=>{
+            type: "GET",
+            url: "http://localhost:8080/api/users/role",
+        }).done((data) => {
             role = data
 
-        }).fail((jqXHR)=>{
+        }).fail((jqXHR) => {
             console.log(jqXHR)
         })
     }
     getAllRole();
+
+    function showLock(lockNum) {
+        if (lockNum) {
+            return `<i class="fas fa-lock" aria-hidden="true"></i>`
+        } else {
+            return `<i class="fas fa-unlock" aria-hidden="true"></i>`
+        }
+    }
+    function showlock(objUser,lock){
+        if (lock){
+
+            return `
+             <th id="unlock" class="text-center">
+                                <a class="btn btn-outline-success unlock"  data-id="${objUser.id}" title="UnLock" data-toggle="tooltip" data-toggle="modal" >
+                                  <i class="fas fa-lock" aria-hidden="true"></i>
+                                </a>
+             </th>
+            `;
+
+        }
+        else {
+            return `
+            <th id="block" class="text-center">
+                                <a class="btn btn-outline-success block"  data-id="${objUser.id}" title="Block" data-toggle="tooltip" data-toggle="modal" >
+                                  <i class="fas fa-unlock" aria-hidden="true"></i>
+                                </a>
+            </th>
+            `;
+        }
+    }
 
     $("#tbListUser").on("click", ".block", function () {
         user.id = $(this).data('id');
@@ -341,14 +357,12 @@ loadUser();
         App.showBlockConfirmDialog()
             .then((result) => {
                 if (result.isConfirmed) {
-
                     doBlock(userId);
                 }
             });
-
     }
 
-    function doBlock (userId) {
+    function doBlock(userId) {
         user.role = role;
         $.ajax({
             type: "DELETE",
@@ -359,9 +373,7 @@ loadUser();
             url: "http://localhost:8080/api/users/block/" + userId,
             data: JSON.stringify(user)
         }).done((data) => {
-
             console.log(data)
-
             // console.log(data.role.code)
             // $("#tr_" + userId).remove();
             let str = `
@@ -395,14 +407,7 @@ loadUser();
         })
     }
 
-    function showLock(lockNum) {
-        if (lockNum) {
-            return `<i class="fas fa-lock" aria-hidden="true"></i>`
-        }
-        else {
-            return `<i class="fas fa-unlock" aria-hidden="true"></i>`
-        }
-    }
+
 
     $("#tbListUser").on("click", ".unlock", function () {
         user.id = $(this).data('id');
@@ -423,7 +428,7 @@ loadUser();
 
     }
 
-    function doUnLock (userId) {
+    function doUnLock(userId) {
         user.role = role;
         $.ajax({
             type: "DELETE",
@@ -470,7 +475,7 @@ loadUser();
         })
     }
 
-    function removeHandleShowModal(){
+    function removeHandleShowModal() {
         $(".block").off("click");
         $(".unlock").off("click");
     }

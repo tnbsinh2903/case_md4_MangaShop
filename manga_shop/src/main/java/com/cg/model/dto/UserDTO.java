@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Accessors(chain = true)
 public class UserDTO implements Validator {
 
@@ -62,6 +62,7 @@ public class UserDTO implements Validator {
         this.id = id;
         this.username = username;
     }
+
 
     public User toUser() {
         return new User()

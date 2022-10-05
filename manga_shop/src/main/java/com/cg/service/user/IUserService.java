@@ -16,6 +16,8 @@ public interface IUserService extends IGeneralService<User>, UserDetailsService 
 
     Optional<UserDTO> findUserDTOByUsername(String username);
 
+    Optional<UserDTO> findUserDTOByPhone(String phone);
+
     List<UserDTO> findAllUserDTO();
 
      void blockUserById(Long id);
@@ -24,5 +26,5 @@ public interface IUserService extends IGeneralService<User>, UserDetailsService 
 
     Optional<UserDTO> findUserDTOById(@Param("id") Long id);
 
-
+    Optional<UserDTO> findUserDTOByUserName( String username);
 }

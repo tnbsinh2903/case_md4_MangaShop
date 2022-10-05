@@ -29,6 +29,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     )
     Optional<UserDTO> findUserDTOByUsername(String username);
 
+    @Query("SELECT NEW com.cg.model.dto.UserDTO (" +
+            "u.id, " +
+            "u.phone" +
+            ") " +
+            "FROM User AS u " +
+            "WHERE u.phone = ?1")
+    Optional<UserDTO> findUserDTOByPhone(String phone);
+
     @Query("SELECT NEW com.cg.model.dto.UserDTO(" +
             "u.id ," +
             "u.fullName, " +
@@ -60,4 +68,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.deleted) " +
             "FROM User AS u WHERE u.id = :id")
     Optional<UserDTO> findUserDTOById(@Param("id") Long id);
+    @Query("SELECT NEW com.cg.model.dto.UserDTO(" +
+            "u.id ," +
+            "u.fullName, " +
+            "u.username, " +
+            "u.password," +
+            "u.phone," +
+            "u.address," +
+            "u.role ," +
+            "u.deleted) " +
+            "FROM User AS u WHERE u.username = :username")
+    Optional<UserDTO> findUserDTOByUserName(@Param("username") String username);
 }

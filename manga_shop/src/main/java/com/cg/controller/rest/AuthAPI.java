@@ -2,6 +2,7 @@ package com.cg.controller.rest;
 
 import com.cg.exception.DataInputException;
 import com.cg.exception.EmailExistsException;
+import com.cg.exception.PhoneExistsException;
 import com.cg.model.JwtResponse;
 import com.cg.model.Role;
 import com.cg.model.User;
@@ -59,6 +60,11 @@ public class AuthAPI {
 
         if (optUser.isPresent()) {
             throw new EmailExistsException("Email already exists");
+        }
+
+        Optional<UserDTO> userphone = userService.findUserDTOByPhone(userDTO.getPhone());
+        if (userphone.isPresent()) {
+            throw new PhoneExistsException("Phone already exists");
         }
 
         Optional<Role> optRole = roleService.findById(userDTO.getRole().getId());

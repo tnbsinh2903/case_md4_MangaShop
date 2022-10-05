@@ -3,6 +3,7 @@ package com.cg.service.role;
 import com.cg.model.Role;
 import com.cg.model.dto.CategoryDTO;
 import com.cg.model.dto.RoleDTO;
+import com.cg.model.dto.UserDTO;
 import com.cg.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,5 +46,10 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public List<RoleDTO> getAllRoleDTO() {
         return roleRepository.getAllRoleDTO();
+    }
+
+    @Override
+    public Optional<RoleDTO> findRoleDTOById(Long id) {
+        return roleRepository.findRoleDTOById(id);
     }
 }
